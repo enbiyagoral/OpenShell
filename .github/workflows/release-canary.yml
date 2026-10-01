@@ -17,6 +17,7 @@ defaults:
 env:
   OPENSHELL_VERSION: dev
   OPENSHELL_TELEMETRY_ENABLED: "false"
+  INSTALL_SH_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
 
 jobs:
   macos:
@@ -33,7 +34,7 @@ jobs:
       - name: Install and check gateway status
         run: |
           set -euo pipefail
-          curl -LsSf https://raw.githubusercontent.com/NVIDIA/OpenShell/${{ github.event.workflow_run.head_sha || github.sha }}/install.sh | sh
+          curl -LsSf https://raw.githubusercontent.com/NVIDIA/OpenShell/${INSTALL_SH_SHA}/install.sh | sh
           openshell --version
           openshell status
 
@@ -84,7 +85,7 @@ jobs:
       - name: Install and check status
         run: |
           set -euo pipefail
-          curl -LsSf https://raw.githubusercontent.com/NVIDIA/OpenShell/${{ github.event.workflow_run.head_sha || github.sha }}/install.sh | sh
+          curl -LsSf https://raw.githubusercontent.com/NVIDIA/OpenShell/${INSTALL_SH_SHA}/install.sh | sh
           openshell status
           sandbox="rc-${GITHUB_RUN_ID}"
           openshell sandbox create --name "$sandbox" --detach
@@ -172,7 +173,7 @@ jobs:
             OPENSHELL_VERSION="$OPENSHELL_VERSION" \
             OPENSHELL_TELEMETRY_ENABLED="$OPENSHELL_TELEMETRY_ENABLED" \
             CANARY_SANDBOX="rc-${GITHUB_RUN_ID}" \
-            INSTALL_SH_URL="https://raw.githubusercontent.com/NVIDIA/OpenShell/${{ github.event.workflow_run.head_sha || github.sha }}/install.sh" \
+            INSTALL_SH_URL="https://raw.githubusercontent.com/NVIDIA/OpenShell/${INSTALL_SH_SHA}/install.sh" \
             bash -s <<'EOF'
           set -euo pipefail
           mkdir -p "${HOME}/.config/openshell"
@@ -223,7 +224,7 @@ jobs:
           set -euo pipefail
           sudo systemctl set-environment \
             "OPENSHELL_TELEMETRY_ENABLED=${OPENSHELL_TELEMETRY_ENABLED}"
-          curl -LsSf https://raw.githubusercontent.com/NVIDIA/OpenShell/${{ github.event.workflow_run.head_sha || github.sha }}/install.sh | sh
+          curl -LsSf https://raw.githubusercontent.com/NVIDIA/OpenShell/${INSTALL_SH_SHA}/install.sh | sh
           sudo snap list openshell
           if sudo snap list docker >/dev/null 2>&1; then
             echo "install.sh unexpectedly installed the Docker snap" >&2
@@ -291,7 +292,7 @@ jobs:
       - name: Verify installer rejects missing Docker
         run: |
           set -euo pipefail
-          curl -LsSf https://raw.githubusercontent.com/NVIDIA/OpenShell/${{ github.event.workflow_run.head_sha || github.sha }}/install.sh -o install.sh
+          curl -LsSf https://raw.githubusercontent.com/NVIDIA/OpenShell/${INSTALL_SH_SHA}/install.sh -o install.sh
           if OPENSHELL_VERSION=dev sh install.sh >install.log 2>&1; then
             echo "install.sh unexpectedly succeeded without Docker" >&2
             cat install.log >&2
@@ -409,7 +410,7 @@ jobs:
           set -euo pipefail
           mkdir -p "${HOME}/.config/openshell"
           printf 'OPENSHELL_COMPUTE_DRIVER=docker\n' > "${HOME}/.config/openshell/gateway.env"
-          curl -LsSf https://raw.githubusercontent.com/NVIDIA/OpenShell/${{ github.event.workflow_run.head_sha || github.sha }}/install.sh | sh
+          curl -LsSf https://raw.githubusercontent.com/NVIDIA/OpenShell/${INSTALL_SH_SHA}/install.sh | sh
 
       - name: Register kind gateway and check status
         run: |

@@ -17,11 +17,13 @@ env:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   build-ci-image:
     name: Build (${{ matrix.arch }})
+    permissions:
+      contents: read
+      packages: write
     strategy:
       fail-fast: false
       matrix:
@@ -87,6 +89,9 @@ jobs:
   merge-ci-image:
     name: Merge manifest
     needs: build-ci-image
+    permissions:
+      contents: read
+      packages: write
     runs-on: linux-amd64-cpu8
     timeout-minutes: 10
     steps:
